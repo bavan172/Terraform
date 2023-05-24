@@ -51,6 +51,11 @@ resource "aws_instance" "instance" {
   }
 }
 
+# AWS EIP
+resource "aws_eip" "web_ip" {
+  instance = aws_instance.instance.id
+  vpc = true
+}
 
 # Public Subnet 1
 resource "aws_subnet" "public1" {
@@ -63,6 +68,7 @@ resource "aws_subnet" "public1" {
 
 # Public Subnet 2
 resource "aws_subnet" "public2" {
+  availability_zone = "ap-south-1b"
   vpc_id = aws_vpc.main.id
   cidr_block = "10.0.2.0/24"
   tags = {
@@ -72,6 +78,7 @@ resource "aws_subnet" "public2" {
 
 # Public Subnet 3
 resource "aws_subnet" "public3" {
+  availability_zone = "ap-south-1c"
   vpc_id = aws_vpc.main.id
   cidr_block = "10.0.3.0/24"
   tags = {
@@ -171,8 +178,31 @@ resource "aws_security_group" "db_sec_grp" {
 }
 
 
-# # DB Subnet group
-# resource "aws_db_subnet_group" "db_subnet_grp" {
-#   name = "DB Subnets"
-#   subnet_ids = [aws_subnet.public2.id, aws_subnet.public3.id]
-# }
+# DB Subnet group
+resource "aws_db_subnet_group" "db_subnet_grp" {
+  name = "db_subnets"
+  subnet_ids = [aws_subnet.public2.id, aws_subnet.public3.id]
+  description = "Subnets for RDS"
+
+  tags = {
+    name = "db_subnets"
+  }
+}
+
+# RDS
+resource "aws_db_instance" "db_instance" {
+
+ identifier           = "maininstance"
+ username             = "bavan"
+ password             = "bavanbavan"
+ db_name              = "mymaindb"
+ engine               = "mysql"
+ multi_az             = false
+ engine_version       = "5.7"
+ instance_class       = "db.t2.micro"
+ allocated_storage    = 10
+ db_subnet_group_name = aws_db_subnet_group.db_subnet_grp.name
+ vpc_security_group_ids = [aws_security_group.db_sec_grp.id]
+ parameter_group_name = "default.mysql5.7"
+ skip_final_snapshot  = true
+}
