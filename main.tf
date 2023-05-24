@@ -191,18 +191,17 @@ resource "aws_db_subnet_group" "db_subnet_grp" {
 
 # RDS
 resource "aws_db_instance" "db_instance" {
-
- identifier           = "maininstance"
- username             = "bavan"
- password             = "bavanbavan"
- db_name              = "mymaindb"
- engine               = "mysql"
- multi_az             = false
- engine_version       = "5.7"
- instance_class       = "db.t2.micro"
- allocated_storage    = 10
- db_subnet_group_name = aws_db_subnet_group.db_subnet_grp.name
- vpc_security_group_ids = [aws_security_group.db_sec_grp.id]
- parameter_group_name = "default.mysql5.7"
- skip_final_snapshot  = true
+  identifier           = "maininstance"
+  username             = "bavan"
+  password             = "bavanbavan"
+  db_name              = "mymaindb"
+  engine               = "mysql"
+  multi_az             = true
+  engine_version       = "5.7"
+  instance_class       = "db.t2.micro"
+  allocated_storage    = 10
+  db_subnet_group_name = aws_db_subnet_group.db_subnet_grp.name
+  vpc_security_group_ids = [aws_security_group.db_sec_grp.id]
+  parameter_group_name = "default.mysql5.7"
+  skip_final_snapshot  = true
 }
